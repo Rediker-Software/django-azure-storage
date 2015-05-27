@@ -96,10 +96,7 @@ class AzureStorage(Storage):
         else:
             content_type = mimetypes.guess_type(name)[0]
 
-        if hasattr(content, 'chunks'):
-            content_str = ''.join(chunk for chunk in content.chunks())
-        else:
-            content_str = content.read()
+        content_str = content.read()
 
         cache_control = self.get_cache_control(self.container, name,
                                                content_type)
