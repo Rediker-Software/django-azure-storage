@@ -4,7 +4,15 @@ from azure.storage import BlobService
 from django.core.files.storage import Storage
 from django.conf import settings
 
+try:
+    from django.utils.deconstruct import deconstructible
+except ImportError:
+    #Support for django 1.7 and below
+    def deconstructible(func):
+        return func
 
+
+@deconstructible
 class AzureStorage(Storage):
     """
     Custom file storage system for Azure
