@@ -68,12 +68,17 @@ class AzureStorage(Storage):
         return self._blob_service
 
     def _get_container_url(self):
-        if self.cdn_host is not None:
-            return self.cdn_host
-
         if not hasattr(self, '_container_url'):
-            self._container_url = '%s://%s/%s' % (self._get_protocol(),
-                self._get_service()._get_host(), self.container)
+            base_url = '{protocol}://{host}/{container}'
+            
+            if self.cdn_host:
+                base_url = self.cdn_host
+            
+            self._container_url = base_url.format({
+                'protocol': self._get_protocol(),
+                'host': self._get_service()._get_host(),
+                'container': self.container,
+            })
 
         return self._container_url
 
