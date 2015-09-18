@@ -1,5 +1,5 @@
-from azure import WindowsAzureMissingResourceError
-from azure.storage import BlobService
+from azure.common import AzureMissingResourceHttpError
+from azure.storage.blob import BlobService
 
 from django.core.files.storage import Storage
 from django.conf import settings
@@ -172,7 +172,7 @@ class AzureStorage(Storage):
             self._get_properties(name)
 
             return True
-        except WindowsAzureMissingResourceError:
+        except AzureMissingResourceHttpError:
             return False
 
     def delete(self, name):
@@ -182,7 +182,7 @@ class AzureStorage(Storage):
 
         try:
             self._get_service().delete_blob(self.container, name)
-        except WindowsAzureMissingResourceError:
+        except AzureMissingResourceHttpError:
             pass
 
     def get_cache_control(self, container, name, content_type):
@@ -203,7 +203,7 @@ class AzureStorage(Storage):
             properties = self._get_properties(name)
 
             return int(properties['content-length'])
-        except WindowsAzureMissingResourceError:
+        except AzureMissingResourceHttpError:
             pass
 
     def url(self, name):
