@@ -18,14 +18,14 @@ class AzureStorage(Storage):
     Custom file storage system for Azure
     """
 
-    container = settings.AZURE_STORAGE['CONTAINER']
-    account_name = settings.AZURE_STORAGE['ACCOUNT_NAME']
-    account_key = settings.AZURE_STORAGE['ACCOUNT_KEY']
-    cdn_host = None
-    use_ssl = settings.AZURE_STORAGE['USE_SSL']
+    container = settings.AZURE_STORAGE.get('CONTAINER')
+    account_name = settings.AZURE_STORAGE.get('ACCOUNT_NAME')
+    account_key = settings.AZURE_STORAGE.get('ACCOUNT_KEY')
+    cdn_host = settings.AZURE_STORAGE.get('CDN_HOST')
+    use_ssl = settings.AZURE_STORAGE.get('USE_SSL')
 
     def __init__(self, account_name=None, account_key=None, container=None,
-         use_ssl=None):
+         use_ssl=None, cdn_host=None):
 
         if account_name is not None:
             self.account_name = account_name
@@ -38,6 +38,9 @@ class AzureStorage(Storage):
 
         if use_ssl is not None:
             self.use_ssl = use_ssl
+
+        if cdn_host is not None:
+            self.cdn_host = cdn_host
 
     def __getstate__(self):
         return dict(account_name=self.account_name,
