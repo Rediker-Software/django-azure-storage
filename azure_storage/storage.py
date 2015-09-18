@@ -43,9 +43,13 @@ class AzureStorage(Storage):
             self.cdn_host = cdn_host
 
     def __getstate__(self):
-        return dict(account_name=self.account_name,
-            account_key=self.account_key, container=self.container,
-            cdn_host=self.cdn_host, use_ssl=self.use_ssl)
+        return dict(
+            account_name=self.account_name,
+            account_key=self.account_key,
+            container=self.container,
+            cdn_host=self.cdn_host,
+            use_ssl=self.use_ssl
+        )
 
     def _get_protocol(self):
         if self.use_ssl:
@@ -55,8 +59,11 @@ class AzureStorage(Storage):
 
     def _get_service(self):
         if not hasattr(self, '_blob_service'):
-            self._blob_service = BlobService(account_name=self.account_name,
-                account_key=self.account_key, protocol=self._get_protocol())
+            self._blob_service = BlobService(
+                account_name=self.account_name,
+                account_key=self.account_key,
+                protocol=self._get_protocol()
+            )
 
         return self._blob_service
 
@@ -71,8 +78,10 @@ class AzureStorage(Storage):
         return self._container_url
 
     def _get_properties(self, name):
-        return self._get_service().get_blob_properties(self.container,
-                name)
+        return self._get_service().get_blob_properties(
+            self.container,
+            name
+        )
 
     def _get_file_obj(self, name):
         """
@@ -109,14 +118,21 @@ class AzureStorage(Storage):
 
         content_str = content.read()
 
-        cache_control = self.get_cache_control(self.container, name,
-                                               content_type)
+        cache_control = self.get_cache_control(
+            self.container,
+            name,
+            content_type
+        )
 
-        self._get_service().put_blob(self.container, name, content_str,
-                                     x_ms_blob_type="BlockBlob",
-                                     x_ms_blob_content_type=content_type,
-                                     cache_control=cache_control,
-                                     x_ms_blob_cache_control=cache_control)
+        self._get_service().put_blob(
+            self.container,
+            name,
+            content_str,
+            x_ms_blob_type='BlockBlob',
+            x_ms_blob_content_type=content_type,
+            cache_control=cache_control,
+            x_ms_blob_cache_control=cache_control
+        )
 
         content.close()
 
@@ -203,7 +219,9 @@ class AzureStorage(Storage):
         try:
             properties = self._get_properties(name)
 
-            return datetime.datetime.strptime(properties['last-modified'],
-                '%a, %d %b %Y %H:%M:%S %Z')
-        except WindowsAzureMissingResourceError:
+            return datetime.datetime.strptime(
+                properties['last-modified'],
+                '%a, %d %b %Y %H:%M:%S %Z'
+            )
+        except AzureMissingResourceHttpError:
             pass
