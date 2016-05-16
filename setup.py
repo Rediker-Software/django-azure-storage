@@ -20,7 +20,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'Django>=1.3',
-        'azure>=1.0.0,<1.1.0',
+        'azure-storage>=0.20.0,<0.30.0',
     ],
     # See http://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
