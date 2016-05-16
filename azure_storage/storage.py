@@ -86,8 +86,8 @@ class AzureStorage(Storage):
 
     def _get_properties(self, name):
         return self._get_service().get_blob_properties(
-            self.container,
-            name
+            container_name=self.container,
+            blob_name=name
         )
 
     def _get_file_obj(self, name):
