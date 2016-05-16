@@ -103,7 +103,10 @@ class AzureStorage(Storage):
 
         from django.core.files.base import ContentFile
 
-        contents = self._get_service().get_blob(self.container, name)
+        contents = self._get_service().get_blob_to_bytes(
+            container_name=self.container,
+            blob_name=name
+        )
 
         return ContentFile(contents)
 
