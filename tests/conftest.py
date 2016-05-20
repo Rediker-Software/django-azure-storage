@@ -41,6 +41,17 @@ def mock_service():
     from mock import Mock
 
     service = Mock()
-    service._get_host = Mock(return_value='test-name.blob.core.windows.net')
+
+    def make_blob_url(*args, **kwargs):
+        print(service)
+        print(service.called)
+
+        return 'http://{host}/{container}/{blob}'.format(
+            host=kwargs.get('host_base', 'test-name.blob.core.windows.net'),
+            container=kwargs['container_name'],
+            blob=kwargs['blob_name'],
+        )
+
+    service.make_blob_url = make_blob_url
 
     return service

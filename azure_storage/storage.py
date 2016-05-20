@@ -51,50 +51,21 @@ class AzureStorage(Storage):
             use_ssl=self.use_ssl
         )
 
-    def _get_protocol(self):
-        if self.use_ssl:
-            return 'https'
-
-        return 'http'
-
     def _get_service(self):
         if not hasattr(self, '_blob_service'):
             self._blob_service = BlobService(
                 account_name=self.account_name,
                 account_key=self.account_key,
-                protocol=self._get_protocol()
+                protocol='https' if self.use_ssl else 'http'
             )
 
         return self._blob_service
-
-    def _get_container_url(self):
-        if not hasattr(self, '_container_url'):
-            base_url = '{protocol}://{host}/{container}'
-
-            if self.cdn_host:
-                base_url = self.cdn_host
-
-            container_details = {
-                'protocol': self._get_protocol(),
-                'host': self._get_service()._get_host(),
-                'container': self.container,
-            }
-
-            self._container_url = base_url.format(**container_details)
-
-        return self._container_url
 
     def _get_properties(self, name):
         return self._get_service().get_blob_properties(
             container_name=self.container,
             blob_name=name
         )
-
-    def _get_file_obj(self, name):
-        """
-        Helper function to get retrieve the requested Cloud Files Object.
-        """
-        return self._get_service().get_blob(self.container, name)
 
     def _open(self, name, mode='rb'):
         """
@@ -214,7 +185,19 @@ class AzureStorage(Storage):
         be accessed.
         """
 
-        return '%s/%s' % (self._get_container_url(), name)
+        blob_url_args = {
+            'container_name': self.container,
+            'blob_name': name,
+        }
+
+        if self.cdn_host:
+            # The account name should be built into the cdn hostname
+            blob_url_args['account_name'] = ''
+            blob_url_args['host_base'] = self.cdn_host
+
+        return self._get_service().make_blob_url(
+            **blob_url_args
+        )
 
     def modified_time(self, name):
         """

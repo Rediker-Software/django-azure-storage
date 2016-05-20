@@ -23,24 +23,33 @@ def test_delete_doesnt_exist(default_storage):
     delete_blob.assert_called_with('test-container', 'something')
 
 def test_url(default_storage):
-    url = default_storage.url('test')
+    make_blob_url = Mock(
+        return_value='http://test-name.blob.core.windows.net/test-container/t'
+    )
+    default_storage._blob_service.make_blob_url = make_blob_url
+    url = default_storage.url('t')
 
-    assert url == 'http://test-name.blob.core.windows.net/test-container/test'
+    assert url == 'http://test-name.blob.core.windows.net/test-container/t'
 
-def test_url_ssl(default_storage):
-    default_storage.use_ssl = True
-    url = default_storage.url('test')
-
-    assert url == 'https://test-name.blob.core.windows.net/test-container/test'
+    make_blob_url.assert_called_with(
+        container_name='test-container',
+        blob_name='t',
+    )
 
 def test_url_cdn(default_storage):
-    default_storage.cdn_host = 'http://example.com/test-container'
+    make_blob_url = Mock(
+        return_value='http://example.com/test-container/test'
+    )
+    default_storage._blob_service.make_blob_url = make_blob_url
+    default_storage.cdn_host = 'example.com'
+
     url = default_storage.url('test')
 
     assert url == 'http://example.com/test-container/test'
 
-def test_url_cdn_no_container(default_storage):
-    default_storage.cdn_host = 'http://example.com'
-    url = default_storage.url('test')
-
-    assert url == 'http://example.com/test'
+    make_blob_url.assert_called_with(
+        container_name='test-container',
+        blob_name='test',
+        account_name='',
+        host_base='example.com',
+    )
