@@ -1,3 +1,6 @@
+import mimetypes
+import datetime
+
 from azure.common import AzureMissingResourceHttpError
 from azure.storage.blob import BlobService
 
@@ -86,7 +89,7 @@ class AzureStorage(Storage):
         Use the Azure Storage service to write ``content`` to a remote file
         (called ``name``).
         """
-        import mimetypes
+        
 
         content.open()
 
@@ -128,6 +131,9 @@ class AzureStorage(Storage):
             path = '%s/' % path
 
         path_len = len(path)
+
+        if not path:
+            path = None
 
         blob_list = self._get_service().list_blobs(self.container, prefix=path)
 
@@ -203,8 +209,6 @@ class AzureStorage(Storage):
         """
         Returns a datetime object containing the last modified time.
         """
-
-        import datetime
 
         try:
             properties = self._get_properties(name)
